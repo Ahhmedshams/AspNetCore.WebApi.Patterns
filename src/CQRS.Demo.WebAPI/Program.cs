@@ -1,5 +1,7 @@
 
 using FormulaOne.DataService.Data;
+using FormulaOne.DataService.Repositories;
+using FormulaOne.DataService.Repositories.Ineterfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FormulaOne.WebAPI
@@ -20,6 +22,7 @@ namespace FormulaOne.WebAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 
 
             var app = builder.Build();
