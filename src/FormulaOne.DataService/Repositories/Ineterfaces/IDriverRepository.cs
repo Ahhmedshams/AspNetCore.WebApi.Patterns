@@ -1,9 +1,4 @@
-﻿using FormulaOne.DataService.DbSet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FormulaOne.Entities.DbSet;
 
 namespace FormulaOne.DataService.Repositories.Ineterfaces
 {

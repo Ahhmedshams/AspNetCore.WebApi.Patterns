@@ -1,8 +1,8 @@
 ﻿using FormulaOne.DataService.Data;
-using FormulaOne.DataService.DbSet;
 using FormulaOne.DataService.Repositories.Ineterfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using FormulaOne.Entities.DbSet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace FormulaOne.DataService.Repositories
         }
 
 
-        public async Task<Achievement> GetDriverAchievementAsync(Guid id)
+        public async Task<Achievement?> GetDriverAchievementAsync(Guid id)
         {
             try
             {              

@@ -1,10 +1,5 @@
-﻿using FormulaOne.DataService.DbSet;
+﻿using FormulaOne.Entities.DbSet;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FormulaOne.DataService.Data
 {

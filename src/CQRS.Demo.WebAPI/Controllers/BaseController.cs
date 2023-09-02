@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FormulaOne.WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Components.Route("api/[controller]")]
     [ApiController]
     public class BaseController: ControllerBase
     {
