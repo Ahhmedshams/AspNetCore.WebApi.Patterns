@@ -1,10 +1,7 @@
-﻿using AutoMapper;
-using FormulaOne.DataService.Repositories.Ineterfaces;
-using FormulaOne.Entities.DbSet;
-using FormulaOne.Entities.Dtos.Requests;
-using FormulaOne.Entities.Dtos.Responses;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using FormulaOne.Entities.Dtos.Requests;
+using FormulaOne.WebAPI.Commands.DriverCommand;
+using FormulaOne.WebAPI.Queries.DriverQuery;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FormulaOne.WebAPI.Controllers
@@ -13,28 +10,29 @@ namespace FormulaOne.WebAPI.Controllers
     [ApiController]
     public class Drivers : BaseController
     {
-        public Drivers(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public Drivers(IMediator mediator) : base(mediator)
         {
-
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllDrivers()
         {
-            var drivers = await _unitOfWork.Drivers.GetAllAsync();
-            return Ok(_mapper.Map<IEnumerable<GetDriverResponse>>(drivers));
+            var query = new GetAllDriverQuery();
+            var result = await _mediator.Send(query);
+            return Ok(result);
         }
 
         [HttpGet]
         [Route("{driverId:Guid}")]
         public async Task<IActionResult> GetDriver(Guid driverId)
         {
-            var driver = await _unitOfWork.Drivers.GetByIdAsync(driverId);
-            if (driver == null)
+            var query = new GetDriverQuery(driverId);
+            var result = await _mediator.Send(query);
+            
+            if (result == null)
                 return NotFound();
-
-            var result = _mapper.Map<GetDriverResponse>(driver);
-            return Ok(result);
+            else
+                 return Ok(result);
 
         }
         [HttpPost]
@@ -42,11 +40,12 @@ namespace FormulaOne.WebAPI.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var result = _mapper.Map<Driver>(driver);
-            await _unitOfWork.Drivers.AddAsync(result);
-            await _unitOfWork.CompleteAsync();
+            var command = new CreateDriverInfoRequest(driver);
+               
+            var result = await _mediator.Send(command);
+            
 
-            return CreatedAtAction(nameof(GetDriver), new { driverId = result.Id }, result);
+            return CreatedAtAction(nameof(GetDriver), new { driverId = result.DriverId }, result);
         }
 
         [HttpPut]
@@ -55,24 +54,25 @@ namespace FormulaOne.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = _mapper.Map<Driver>(driver);
-            await _unitOfWork.Drivers.UpdateAsync(result);
-            await _unitOfWork.CompleteAsync();
-            return NoContent();
+
+            var command = new UpdateDriverInfoRequest(driver);
+            var result = await _mediator.Send(command);
+
+            if(result == true) 
+                return NoContent();
+            else
+                return BadRequest();
         }
 
         [HttpDelete]
         [Route("{driverId:Guid}")]
         public async Task<IActionResult> DeleteDriver(Guid driverId)
         {
-            var driver = await _unitOfWork.Drivers.GetByIdAsync(driverId);
-            if (driver == null)
-                return NotFound();
-
-            await _unitOfWork.Drivers.DeleteAsync(driverId);
-            await _unitOfWork.CompleteAsync();
-            return NoContent();
-
+           
+            var command = new DeleteDriverRequest(driverId);
+            var result = await _mediator.Send(command);
+            return result? NoContent(): NotFound();
+          
         }
     }
 }

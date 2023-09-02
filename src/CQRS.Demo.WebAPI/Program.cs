@@ -26,6 +26,9 @@ namespace FormulaOne.WebAPI
             builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
             builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
+            //Injecting The MediatR to our DI
+            builder.Services.AddMediatR(cfg=>cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

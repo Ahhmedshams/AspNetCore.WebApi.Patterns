@@ -3,6 +3,11 @@ using FormulaOne.DataService.Repositories.Ineterfaces;
 using FormulaOne.Entities.DbSet;
 using FormulaOne.Entities.Dtos.Requests;
 using FormulaOne.Entities.Dtos.Responses;
+using FormulaOne.WebAPI.Commands.AchievementCommand;
+using FormulaOne.WebAPI.Commands.DriverCommand;
+using FormulaOne.WebAPI.Queries.AchievementQuery;
+using FormulaOne.WebAPI.Queries.DriverQuery;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +17,7 @@ namespace FormulaOne.WebAPI.Controllers
     [ApiController]
     public class AchievementController : BaseController
     {
-        public AchievementController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        public AchievementController(IMediator mediator) : base(mediator)
         {
         }
 
@@ -20,22 +25,22 @@ namespace FormulaOne.WebAPI.Controllers
         [Route("{driverId:Guid}")]
         public async Task<IActionResult> GetDriverAchievements(Guid driverId)
         {
-            var driverAchivement = await _unitOfWork.Achievements.GetDriverAchievementAsync(driverId);
-            if(driverAchivement ==null)
-                return NotFound();
+            var query = new GetDriverAchievementQuery(driverId);
+            var result = await _mediator.Send(query);
 
-            var result = _mapper.Map<DriverAchievementResponse>(driverAchivement);
-            return Ok(result);
-            
+            if (result == null)
+                return NotFound();
+            else
+                return Ok(result);
         }
         [HttpPost]
         public async Task<IActionResult> AddAchievement([FromBody] CreateDriverAchievementRequest achievement)
         {
             if(!ModelState.IsValid) 
                 return BadRequest(ModelState);
-            var result = _mapper.Map<Achievement>(achievement);
-            await _unitOfWork.Achievements.AddAsync(result);
-            await _unitOfWork.CompleteAsync();
+            var command = new CreateAchievementRequest(achievement);
+
+            var result = await _mediator.Send(command);
 
             return CreatedAtAction(nameof(GetDriverAchievements), new { driverId = result.DriverId }, result);
         }
@@ -46,10 +51,13 @@ namespace FormulaOne.WebAPI.Controllers
             if(!ModelState.IsValid)
                    return BadRequest(ModelState);
 
-            var result = _mapper.Map<Achievement>(achievement);
-            await _unitOfWork.Achievements.UpdateAsync(result);
-            await _unitOfWork.CompleteAsync();  
-            return NoContent();  
+            var command = new UpdateAchievementInfoRequest(achievement);
+            var result = await _mediator.Send(command);
+
+            if (result == true)
+                return NoContent();
+            else
+                return BadRequest();
         }
     }
 }
