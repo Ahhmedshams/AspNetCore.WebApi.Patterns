@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FormulaOne.Entities.DbSet;
 using FormulaOne.Entities.Dtos.Requests;
-using FormulaOne.Entities.Dtos.Responses;
 
 namespace FormulaOne.WebAPI.MappingProfiles
 {
